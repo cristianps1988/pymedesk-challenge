@@ -1,0 +1,75 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Cliente {
+  id        Int      @id @default(autoincrement())
+  nombre    String   @db.Text
+  celular   String
+  correo    String   @unique
+  direccion String   @db.Text
+  ciudad    String
+  pedidos   Pedido[]
+
+  @@map("clientes")
+}
+
+model Producto {
+  id          Int          @id @default(autoincrement())
+  nombre      String       @db.Text
+  valor       Decimal      @db.Decimal(10, 2)
+  inventario  Int
+  pedidoItems PedidoItem[]
+
+  @@map("productos")
+}
+
+model Pedido {
+  id            Int          @id @default(autoincrement())
+  fecha         DateTime     @default(now())
+  estado        EstadoPedido
+  pagado        Boolean      @default(false)
+  clienteId     Int
+  cliente       Cliente      @relation(fields: [clienteId], references: [id])
+  reglaEnvio    ReglaEnvio
+  observaciones String?      @db.Text
+  items         PedidoItem[]
+
+  @@map("pedidos")
+}
+
+model PedidoItem {
+  id         Int      @id @default(autoincrement())
+  pedidoId   Int
+  pedido     Pedido   @relation(fields: [pedidoId], references: [id])
+  productoId Int
+  producto   Producto @relation(fields: [productoId], references: [id])
+  cantidad   Int
+
+  @@map("pedido_items")
+}
+
+enum EstadoPedido {
+  PENDIENTE
+  EN_RUTA
+  ENTREGADO
+  CANCELADO
+}
+
+enum ReglaEnvio {
+  DOMICILIO
+  RECOGE_EN_PUNTO
+}
+
+/// @sql ALTER TABLE public.productos ADD CONSTRAINT check_inventario_no_negativo CHECK (inventario >= 0);
