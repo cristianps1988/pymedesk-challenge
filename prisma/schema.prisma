@@ -45,6 +45,7 @@ model Pedido {
   reglaEnvio    ReglaEnvio
   observaciones String?      @db.Text
   items         PedidoItem[]
+  total         Int          @default(0)
 
   @@map("pedidos")
 }

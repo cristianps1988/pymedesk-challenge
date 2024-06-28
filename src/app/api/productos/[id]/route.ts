@@ -29,7 +29,6 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
 
 
 export async function PATCH(req: Request, { params }: { params: { id: string } }) {
-    console.log('entrando a actualizar')
     const productId = +params.id
     try {
         const productExist = await prisma.producto.findUnique({
